@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using ProductService.Application.Interfaces;
 using ProductService.Application.Interfaces.IRepository;
+using ProductService.Infrastructure.Adapters;
 using ProductService.Infrastructure.Repositories;
 
 namespace ProductService.Infrastructure.Data
@@ -18,6 +20,9 @@ namespace ProductService.Infrastructure.Data
             services.AddSingleton<IMongoClient>(sp => new MongoClient(configuration.GetSection("MongoDbSettings:ConnectionString").Value));
             services.AddScoped(typeof(IDbContext<>), typeof(DbContext<>));
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped(typeof(IAppLogger<>), typeof(AppLoggerAdapter<>));
             return services;
         }
     }
