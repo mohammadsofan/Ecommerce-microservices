@@ -1,7 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\ProductService.Application\ProductService.Application.csproj" />
+	  <ProjectReference Include="..\ProductService.Application\ProductService.Application.csproj" />
+	  <ProjectReference Include="..\ProductService.Api\ProductService.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="3.4.3" />
   </ItemGroup>
 
   <PropertyGroup>

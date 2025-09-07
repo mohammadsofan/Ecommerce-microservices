@@ -7,7 +7,7 @@ namespace ProductService.Domain.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public int Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         [BsonRequired]
         public string Name { get; set; } = string.Empty;
         [BsonRequired]
