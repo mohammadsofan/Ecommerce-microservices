@@ -1,5 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
+using ProductService.Application.Interfaces.IRepository;
+using ProductService.Infrastructure.Repositories;
 
 namespace ProductService.Infrastructure.Data
 {
@@ -12,7 +15,9 @@ namespace ProductService.Infrastructure.Data
                 options.ConnectionString = configuration.GetSection("MongoDbSettings:ConnectionString").Value ?? "";
                 options.DatabaseName = configuration.GetSection("MongoDbSettings:DatabaseName").Value ?? "";
             });
-            services.AddSingleton<DbContext>();
+            services.AddSingleton<IMongoClient>(sp => new MongoClient(configuration.GetSection("MongoDbSettings:ConnectionString").Value));
+            services.AddScoped(typeof(IDbContext<>), typeof(DbContext<>));
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             return services;
         }
     }

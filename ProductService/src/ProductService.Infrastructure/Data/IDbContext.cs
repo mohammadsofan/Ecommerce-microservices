@@ -2,13 +2,13 @@ using MongoDB.Driver;
 
 namespace ProductService.Infrastructure.Data
 {
-    public interface IDbContext
+    public interface IDbContext<T>
     {
-        IMongoCollection<T> GetCollection<T>();
-        Task<List<T>> GetAllDocumentsAsync<T>();
-        Task<T?> GetDocumentByIdAsync<T>(string id);
-        public Task<T> InsertDocument<T>(T payload);
-        public Task<bool> UpdateDocument<T>(T payload);
-        public Task<bool> DeleteDocument<T>(string id);
+        IMongoCollection<T> GetCollection();
+        Task<List<T>> GetAllDocumentsAsync();
+        Task<T?> GetDocumentByIdAsync(string id);
+        public Task<T> InsertDocumentAsync(T payload);
+        public Task<bool> UpdateDocumentAsync(T payload);
+        public Task<bool> DeleteDocumentAsync(string id);
     }
 }

@@ -3,47 +3,46 @@ using MongoDB.Driver;
 
 namespace ProductService.Infrastructure.Data
 {
-    internal class DbContext : IDbContext
+    internal class DbContext<T> : IDbContext<T>
     {
 
         private readonly IMongoDatabase _db;
-        public DbContext(IOptions<MongoDbSettings> options)
+        public DbContext(IMongoClient mongoClient, IOptions<MongoDbSettings> options)
         {
-            var client = new MongoClient(options.Value.ConnectionString);
-            _db = client.GetDatabase(options.Value.DatabaseName);
+            _db = mongoClient.GetDatabase(options.Value.DatabaseName);
         }
-        public IMongoCollection<T> GetCollection<T>()
+        public IMongoCollection<T> GetCollection()
         {
             return _db.GetCollection<T>(typeof(T).Name);
         }
-        public async Task<List<T>> GetAllDocumentsAsync<T>()
+        public async Task<List<T>> GetAllDocumentsAsync()
         {
-            return await GetCollection<T>().Find(_ => true).ToListAsync();
+            return await GetCollection().Find(_ => true).ToListAsync();
         }
-        public async Task<T?> GetDocumentByIdAsync<T>(string id)
+        public async Task<T?> GetDocumentByIdAsync(string id)
         {
-            return await GetCollection<T>().Find(Builders<T>.Filter.Eq("Id", id)).FirstOrDefaultAsync();
+            return await GetCollection().Find(Builders<T>.Filter.Eq("Id", id)).FirstOrDefaultAsync();
         }
-        public async Task<T> InsertDocument<T>(T payload)
+        public async Task<T> InsertDocumentAsync(T payload)
         {
-            await GetCollection<T>().InsertOneAsync(payload);
+            await GetCollection().InsertOneAsync(payload);
             return payload;
         }
-        public async Task<bool> UpdateDocument<T>(T payload)
+        public async Task<bool> UpdateDocumentAsync(T payload)
         {
             if (payload == null) return false;
             var id = payload.GetType().GetProperty("Id")?.GetValue(payload)?.ToString();
             if (string.IsNullOrEmpty(id)) return false;
-            var document = await GetDocumentByIdAsync<T>(id);
+            var document = await GetDocumentByIdAsync(id);
             if (document == null) return false;
-            await GetCollection<T>().ReplaceOneAsync(Builders<T>.Filter.Eq("Id", id), payload);
+            await GetCollection().ReplaceOneAsync(Builders<T>.Filter.Eq("Id", id), payload);
             return true;
         }
-        public async Task<bool> DeleteDocument<T>(string id)
+        public async Task<bool> DeleteDocumentAsync(string id)
         {
-            var document = await GetDocumentByIdAsync<T>(id);
+            var document = await GetDocumentByIdAsync(id);
             if (document == null) return false;
-            await GetCollection<T>().DeleteOneAsync(Builders<T>.Filter.Eq("Id", id));
+            await GetCollection().DeleteOneAsync(Builders<T>.Filter.Eq("Id", id));
             return true;
         }
 
