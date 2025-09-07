@@ -2,7 +2,7 @@
 
 namespace ProductService.Application.Interfaces.IRepository
 {
-    public interface IProductRepository:IRepository<Product>
+    public interface IProductRepository : IGenericRepository<Product>
     {
     }
 }

@@ -16,7 +16,7 @@ namespace ProductService.Infrastructure.Repositories
             return await dbContext.InsertDocumentAsync(entity);
         }
 
-        public async Task<bool> Delete(string id)
+        public async Task<bool> DeleteAsync(string id)
         {
             return await dbContext.DeleteDocumentAsync(id);
         }
@@ -31,7 +31,7 @@ namespace ProductService.Infrastructure.Repositories
             return await dbContext.GetDocumentByIdAsync(id);
         }
 
-        public async Task<bool> Update(T entity)
+        public async Task<bool> UpdateAsync(T entity)
         {
             return await dbContext.UpdateDocumentAsync(entity);
         }

@@ -2,7 +2,7 @@
 
 namespace ProductService.Application.Interfaces.IRepository
 {
-    internal interface ICategoryRepository:IRepository<Category>
+    public interface ICategoryRepository : IGenericRepository<Category>
     {
     }
 }
