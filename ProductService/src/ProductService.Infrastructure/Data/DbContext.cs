@@ -40,14 +40,13 @@ namespace ProductService.Infrastructure.Data
             await GetCollection().InsertOneAsync(payload);
             return payload;
         }
-        public async Task<bool> UpdateDocumentAsync(T payload)
+        public async Task<bool> UpdateDocumentAsync(string id,T payload)
         {
             if (payload == null)
             {
                 _logger.LogWarning("Update attempted with null payload.");
                 return false;
             }
-            var id = payload.GetType().GetProperty("Id")?.GetValue(payload)?.ToString();
             if (string.IsNullOrEmpty(id))
             {
                 _logger.LogWarning("Update attempted with payload missing Id property.");

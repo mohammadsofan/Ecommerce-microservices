@@ -31,9 +31,9 @@ namespace ProductService.Infrastructure.Repositories
             return await dbContext.GetDocumentByIdAsync(id);
         }
 
-        public async Task<bool> UpdateAsync(T entity)
+        public async Task<bool> UpdateAsync(string id,T entity)
         {
-            return await dbContext.UpdateDocumentAsync(entity);
+            return await dbContext.UpdateDocumentAsync(id,entity);
         }
     }
 }

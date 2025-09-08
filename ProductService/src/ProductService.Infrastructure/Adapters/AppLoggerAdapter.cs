@@ -1,10 +1,9 @@
-﻿using DnsClient.Internal;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using ProductService.Application.Interfaces;
 
 namespace ProductService.Infrastructure.Adapters
 {
-    internal class AppLoggerAdapter<T> : IAppLogger<T>
+    public class AppLoggerAdapter<T> : IAppLogger<T>
     {
         private readonly ILogger<T> _logger;
 

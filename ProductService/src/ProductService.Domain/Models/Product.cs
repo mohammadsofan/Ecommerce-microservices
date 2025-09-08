@@ -18,5 +18,6 @@ namespace ProductService.Domain.Models
         public decimal Price { get; set; }
         [BsonRequired]
         public int Stock { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

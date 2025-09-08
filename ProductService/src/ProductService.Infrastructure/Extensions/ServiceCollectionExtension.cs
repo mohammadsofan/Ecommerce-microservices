@@ -23,6 +23,7 @@ namespace ProductService.Infrastructure.Data
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped(typeof(IAppLogger<>), typeof(AppLoggerAdapter<>));
+            services.AddSingleton<IAppMapper, AppMapperAdapter>();
             return services;
         }
     }
