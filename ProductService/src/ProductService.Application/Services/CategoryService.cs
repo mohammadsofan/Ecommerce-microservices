@@ -8,7 +8,8 @@ namespace ProductService.Application.Services
 {
     public class CategoryService : GenericService<CategoryRequestDto, CategoryResponseDto, Category>, ICategoryService
     {
-        public CategoryService(IGenericRepository<Category> repository, IAppMapper mapper) : base(repository, mapper)
+        public CategoryService(IGenericRepository<Category> repository, IAppMapper mapper, IAppLogger<GenericService<CategoryRequestDto, CategoryResponseDto, Category>> logger)
+            : base(repository, mapper, logger)
         {
         }
     }

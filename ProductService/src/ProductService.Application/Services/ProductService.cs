@@ -13,7 +13,8 @@ namespace ProductService.Application.Services
 {
     public class ProductService : GenericService<ProductRequestDto, ProductResponseDto, Product>, IProductService
     {
-        public ProductService(IGenericRepository<Product> repository, IAppMapper mapper) : base(repository, mapper)
+        public ProductService(IGenericRepository<Product> repository, IAppMapper mapper, IAppLogger<GenericService<ProductRequestDto, ProductResponseDto, Product>> logger)
+            : base(repository, mapper, logger)
         {
         }
     }
