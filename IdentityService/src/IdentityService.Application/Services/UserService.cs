@@ -10,6 +10,7 @@ using IdentityService.Application.IRepository;
 using IdentityService.Application.IServices;
 using IdentityService.Domain.Entities;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace IdentityService.Application.Services
@@ -125,26 +126,26 @@ namespace IdentityService.Application.Services
         {
             if (filterDto.City is not null)
                 filters.Add(Builders<User>.Filter.ElemMatch(u => u.Addresses,
-                    Builders<Address>.Filter.Regex(a => a.City, new MongoDB.Bson.BsonRegularExpression($"^{filterDto.City}$", "i"))));
+                    Builders<Address>.Filter.Regex(a => a.City, new BsonRegularExpression(filterDto.City, "i"))));
 
             if (filterDto.State is not null)
                 filters.Add(Builders<User>.Filter.ElemMatch(u => u.Addresses,
-                    Builders<Address>.Filter.Regex(a => a.State, new MongoDB.Bson.BsonRegularExpression($"^{filterDto.State}$", "i"))));
+                    Builders<Address>.Filter.Regex(a => a.State, new BsonRegularExpression(filterDto.State, "i"))));
 
             if (filterDto.Country is not null)
                 filters.Add(Builders<User>.Filter.ElemMatch(u => u.Addresses,
-                    Builders<Address>.Filter.Regex(a => a.Country, new MongoDB.Bson.BsonRegularExpression($"^{filterDto.Country}$", "i"))));
+                    Builders<Address>.Filter.Regex(a => a.Country, new BsonRegularExpression(filterDto.Country, "i"))));
 
             if (filterDto.IsActive.HasValue)
                 filters.Add(Builders<User>.Filter.Eq(u => u.IsActive, filterDto.IsActive.Value));
 
             if (filterDto.Username is not null)
                 filters.Add(Builders<User>.Filter.Regex(u => u.Username,
-                    new MongoDB.Bson.BsonRegularExpression($"^{filterDto.Username.ToLower()}$", "i")));
+                    new BsonRegularExpression(filterDto.Username.ToLower(), "i")));
 
             if (filterDto.FullName is not null)
                 filters.Add(Builders<User>.Filter.Regex(u => u.FullName,
-                    new MongoDB.Bson.BsonRegularExpression($"^{filterDto.FullName.ToLower()}$", "i")));
+                    new BsonRegularExpression(filterDto.FullName.ToLower(), "i")));
         }
 
         public async Task<UserDto> GetUserByIdAsync(string userId)
