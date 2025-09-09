@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProductService.Application.Constants;
 using ProductService.Application.Dtos.Product;
 using ProductService.Application.Interfaces.IServices;
 
@@ -28,14 +29,19 @@ namespace ProductService.Api.Controllers
         public async Task<IActionResult> GetProductByIdAsync(string id)
         {
             _logger.LogInformation($"Getting product by id: {id}");
-            var product = await _productService.GetByIdAsync(id);
-            if (product == null)
+            var result = await _productService.GetByIdAsync(id);
+            if (!result.Success && result.StatusCode == Application.Constants.StatusCodes.NOT_FOUND)
             {
                 _logger.LogWarning($"Product with id {id} not found.");
-                return NotFound();
+                return NotFound(result);
             }
-            _logger.LogInformation($"Product with id {id} retrieved successfully.");
-            return Ok(product);
+            else if(!result.Success && result.StatusCode == Application.Constants.StatusCodes.BAD_REQUEST)
+            {
+                _logger.LogWarning($"Product retriving failed: bad request (id: {id}).");
+                return BadRequest(result);
+            }
+                _logger.LogInformation($"Product with id {id} retrieved successfully.");
+            return Ok(result);
         }
         [HttpPost]
         public async Task<IActionResult> CreateProductAsync([FromBody] ProductRequestDto requestDto)

@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using ProductService.Application.Interfaces;
 
@@ -32,7 +32,8 @@ namespace ProductService.Infrastructure.Data
         public async Task<T?> GetDocumentByIdAsync(string id)
         {
             _logger.LogInformation($"Retrieving document by Id: {id} from collection: {typeof(T).Name}");
-            return await GetCollection().Find(Builders<T>.Filter.Eq("Id", id)).FirstOrDefaultAsync();
+            var objId = ObjectId.Parse(id);
+            return await GetCollection().Find(Builders<T>.Filter.Eq("Id", objId)).FirstOrDefaultAsync();
         }
         public async Task<T> InsertDocumentAsync(T payload)
         {
@@ -40,7 +41,7 @@ namespace ProductService.Infrastructure.Data
             await GetCollection().InsertOneAsync(payload);
             return payload;
         }
-        public async Task<bool> UpdateDocumentAsync(string id,T payload)
+        public async Task<bool> UpdateDocumentAsync(string id, T payload)
         {
             if (payload == null)
             {
@@ -59,7 +60,9 @@ namespace ProductService.Infrastructure.Data
                 _logger.LogWarning($"No document found with Id: {id} to update in collection: {typeof(T).Name}");
                 return false;
             }
-            await GetCollection().ReplaceOneAsync(Builders<T>.Filter.Eq("Id", id), payload);
+            var objId = ObjectId.Parse(id);
+            payload.GetType().GetProperty("Id")?.SetValue(payload, id, null);
+            await GetCollection().ReplaceOneAsync(Builders<T>.Filter.Eq("Id", objId), payload);
             return true;
         }
         public async Task<bool> DeleteDocumentAsync(string id)
@@ -71,7 +74,8 @@ namespace ProductService.Infrastructure.Data
                 _logger.LogWarning($"No document found with Id: {id} to delete in collection: {typeof(T).Name}");
                 return false;
             }
-            await GetCollection().DeleteOneAsync(Builders<T>.Filter.Eq("Id", id));
+            var objId = ObjectId.Parse(id);
+            await GetCollection().DeleteOneAsync(Builders<T>.Filter.Eq("Id", objId));
             return true;
         }
 
