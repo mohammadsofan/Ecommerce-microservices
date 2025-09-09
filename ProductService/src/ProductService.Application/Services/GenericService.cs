@@ -1,4 +1,5 @@
-﻿using ProductService.Application.Constants;
+﻿using MongoDB.Bson;
+using ProductService.Application.Constants;
 using ProductService.Application.Interfaces;
 using ProductService.Application.Interfaces.IRepository;
 using ProductService.Application.Interfaces.IServices;
@@ -20,7 +21,7 @@ namespace ProductService.Application.Services
             _logger = logger;
         }
 
-        public async Task<ServiceResult<TResponse>> AddAsync(TRequest request)
+        public virtual async Task<ServiceResult<TResponse>> AddAsync(TRequest request)
         {
             _logger.LogInformation($"Adding new {typeof(TEntity).Name}.");
             var entity = _mapper.Map<TEntity>(request);
@@ -31,6 +32,11 @@ namespace ProductService.Application.Services
 
         public async Task<ServiceResult> DeleteAsync(string id)
         {
+            if (ObjectId.TryParse(id, out _) == false)
+            {
+                _logger.LogWarning($"Delete failed: Invalid id format for {typeof(TEntity).Name} (id: {id}).");
+                return ServiceResult.Fail(StatusCodes.BAD_REQUEST, $"Invalid {typeof(TEntity).Name} id format", new List<string> { "Invalid id format, dosen't match ObjectId format" });
+            }
             _logger.LogInformation($"Deleting {typeof(TEntity).Name} with id {id}.");
             var result = await _repository.DeleteAsync(id);
             if (!result)
@@ -53,6 +59,11 @@ namespace ProductService.Application.Services
 
         public async Task<ServiceResult<TResponse>> GetByIdAsync(string id)
         {
+            if (ObjectId.TryParse(id, out _) == false)
+            {
+                _logger.LogWarning($"GetById failed: Invalid id format for {typeof(TEntity).Name} (id: {id}).");
+                return ServiceResult<TResponse>.Fail(StatusCodes.BAD_REQUEST, $"Invalid {typeof(TEntity).Name} id format", new List<string> { "Invalid id format, dosen't match ObjectId format" });
+            }
             _logger.LogInformation($"Retrieving {typeof(TEntity).Name} with id {id}.");
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null)
@@ -64,8 +75,13 @@ namespace ProductService.Application.Services
             return ServiceResult<TResponse>.Ok(StatusCodes.SUCCESS, _mapper.Map<TResponse>(entity), $"{typeof(TEntity).Name} with id {id} retrieved successfully");
         }
 
-        public async Task<ServiceResult> UpdateAsync(string id, TRequest request)
+        public virtual async Task<ServiceResult> UpdateAsync(string id, TRequest request)
         {
+            if (ObjectId.TryParse(id, out _) == false)
+            {
+                _logger.LogWarning($"Update failed: Invalid id format for {typeof(TEntity).Name} (id: {id}).");
+                return ServiceResult.Fail(StatusCodes.BAD_REQUEST, $"Invalid {typeof(TEntity).Name} id format", new List<string> { "Invalid id format, dosen't match ObjectId format" });
+            }
             _logger.LogInformation($"Updating {typeof(TEntity).Name} with id {id}.");
             var entity = _mapper.Map<TEntity>(request);
             var result = await _repository.UpdateAsync(id, entity);

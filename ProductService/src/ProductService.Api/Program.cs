@@ -17,8 +17,8 @@ try
         config.ReadFrom.Services(services)
         .Enrich.FromLogContext();
     });
-    // Add services to the container.
-    // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+    builder.Services.AddControllers();
     builder.Services.AddOpenApi();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -34,6 +34,7 @@ try
     }
 
     app.UseHttpsRedirection();
+    app.MapControllers();
     app.Run();
 
 }

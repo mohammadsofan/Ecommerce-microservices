@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using ProductService.Application.Interfaces;
 using ProductService.Application.Interfaces.IRepository;
+using ProductService.Application.Interfaces.IServices;
+using ProductService.Application.Services;
 using ProductService.Infrastructure.Adapters;
 using ProductService.Infrastructure.Repositories;
 
@@ -24,6 +26,9 @@ namespace ProductService.Infrastructure.Data
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped(typeof(IAppLogger<>), typeof(AppLoggerAdapter<>));
             services.AddSingleton<IAppMapper, AppMapperAdapter>();
+            services.AddScoped<IProductService, Application.Services.ProductService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+
             return services;
         }
     }

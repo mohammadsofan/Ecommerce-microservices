@@ -15,8 +15,10 @@ namespace ProductService.Application.Dtos.Product
         [Required(ErrorMessage = "CategoryId is required")]
         public string CategoryId { get; set; } = string.Empty;
         [Required(ErrorMessage = "Price is required")]
+        [Range(0, double.MaxValue, ErrorMessage = "Price can't be negative")]
         public decimal Price { get; set; }
         [Required(ErrorMessage = "Stock is required")]
+        [Range(0, double.MaxValue, ErrorMessage = "Stock can't be negative")]
         public int Stock { get; set; }
     }
 }
