@@ -1,49 +1,27 @@
+version: "3.8"
 services:
-  # MongoDB
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb
-    restart: unless-stopped
+  productservice-api:
+    build:
+      context: ./ProductService
+      dockerfile: src/ProductService.Api/Dockerfile
+    image: productservice-api:latest
+    container_name: productservice-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MongoDbSettings__ConnectionString=mongodb://mongo:27017
+      - MongoDbSettings__DatabaseName=ProductServiceDB
+      - JWT__Key=ce4144d0518d19b1342d14d60e9f0a433c0f3dbc72957dcf5f9e6fba6e41abc2
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:7.0
+    container_name: mongo
+    restart: always
     ports:
       - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin
     volumes:
-      - mongodb_data:/data/db
-    networks:
-      - mongodb_network
-    command: ["mongod", "--bind_ip_all"]
-    healthcheck:
-      test:
-        - CMD
-        - mongosh
-        - "mongodb://localhost:27017/admin"
-        - "--eval=db.runCommand({ping:1})"
-      retries: 3
-      timeout: 5s
-
-  # Mongo Express
-  mongo-express:
-    image: mongo-express:latest
-    container_name: mongo-express
-    restart: unless-stopped
-    ports:
-      - "7070:8081"
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongodb
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
-      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
-    depends_on:
-      - mongodb
-    networks:
-      - mongodb_network
-
+      - mongo_data:/data/db
 volumes:
-  mongodb_data:
-    driver: local
-
-networks:
-  mongodb_network:
-    driver: bridge
+  mongo_data:
