@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Constants;
 using ProductService.Application.Dtos.Product;
 using ProductService.Application.Interfaces.IServices;
-
+using Shared.Events;
 namespace ProductService.Api.Controllers
 {
     [Route("api/[controller]")]
@@ -11,11 +12,13 @@ namespace ProductService.Api.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly IPublishEndpoint _publishEndpoint;
         private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(IProductService productService, ILogger<ProductsController> logger)
+        public ProductsController(IProductService productService, IPublishEndpoint publishEndpoint, ILogger<ProductsController> logger)
         {
             _productService = productService;
+            _publishEndpoint = publishEndpoint;
             _logger = logger;
         }
         [HttpGet]
@@ -38,12 +41,12 @@ namespace ProductService.Api.Controllers
                 _logger.LogWarning($"Product with id {id} not found.");
                 return NotFound(result);
             }
-            else if(!result.Success && result.StatusCode == Application.Constants.StatusCodes.BAD_REQUEST)
+            else if (!result.Success && result.StatusCode == Application.Constants.StatusCodes.BAD_REQUEST)
             {
                 _logger.LogWarning($"Product retriving failed: bad request (id: {id}).");
                 return BadRequest(result);
             }
-                _logger.LogInformation($"Product with id {id} retrieved successfully.");
+            _logger.LogInformation($"Product with id {id} retrieved successfully.");
             return Ok(result);
         }
         [HttpPost]
@@ -63,6 +66,16 @@ namespace ProductService.Api.Controllers
                 return BadRequest(result);
             }
             _logger.LogInformation($"Product created successfully with id: {result.Data?.Id}");
+            if (result.Data is not null)
+            {
+                _logger.LogInformation($"Publishing ProductCreatedEvent for product id: {result.Data.Id}");
+                await _publishEndpoint.Publish(new ProductCreatedEvent()
+                {
+                    Id = result.Data.Id,
+                    Stock = result.Data.Stock
+                });
+                _logger.LogInformation($"Published ProductCreatedEvent for product id: {result.Data.Id}");
+            }
             return CreatedAtRoute(nameof(GetProductByIdAsync), new { id = result.Data?.Id }, result);
         }
         [HttpPut("{id}")]
@@ -101,6 +114,12 @@ namespace ProductService.Api.Controllers
                 return BadRequest(result);
             }
             _logger.LogInformation($"Product with id {id} deleted successfully.");
+            if (result.Success)
+            {
+                _logger.LogInformation($"Publishing ProductDeletedEvent for product id: {id}");
+                await _publishEndpoint.Publish(new ProductDeletedEvent() { Id = id });
+                _logger.LogInformation($"Published ProductDeletedEvent for product id: {id}");
+            }
             return NoContent();
         }
 

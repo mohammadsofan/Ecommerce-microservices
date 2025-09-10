@@ -2,8 +2,8 @@ version: "3.8"
 services:
   productservice-api:
     build:
-      context: ./ProductService
-      dockerfile: src/ProductService.Api/Dockerfile
+      context: ./
+      dockerfile: ProductService/src/ProductService.Api/Dockerfile
     image: productservice-api:latest
     container_name: productservice-api
     environment:
@@ -11,10 +11,12 @@ services:
       - MongoDbSettings__ConnectionString=mongodb://mongo:27017
       - MongoDbSettings__DatabaseName=ProductServiceDB
       - JWT__Key=ce4144d0518d19b1342d14d60e9f0a433c0f3dbc72957dcf5f9e6fba6e41abc2
+      - RabbitMQ__Uri=amqp://guest:guest@rabbitmq:5672/
     ports:
       - "8080:8080"
     depends_on:
       - mongo
+      - rabbitmq
   mongo:
     image: mongo:7.0
     container_name: mongo
@@ -23,5 +25,18 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 volumes:
   mongo_data:
+  rabbitmq_data:

@@ -11,20 +11,26 @@ EXPOSE 8081
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["src/ProductService.Api/ProductService.Api.csproj", "src/ProductService.Api/"]
-COPY ["src/ProductService.Application/ProductService.Application.csproj", "src/ProductService.Application/"]
-COPY ["src/ProductService.Domain/ProductService.Domain.csproj", "src/ProductService.Domain/"]
-COPY ["src/ProductService.Infrastructure/ProductService.Infrastructure.csproj", "src/ProductService.Infrastructure/"]
-RUN dotnet restore "./src/ProductService.Api/ProductService.Api.csproj"
-COPY . .
-WORKDIR "/src/src/ProductService.Api"
-RUN dotnet build "./ProductService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR /src/ProductService.Api
+# Copy only the csproj and restore as distinct layers
+COPY ../../ProductService/src/ProductService.Api/ProductService.Api.csproj ./
+COPY ../../ProductService/src/ProductService.Application/ProductService.Application.csproj ../ProductService.Application/
+COPY ../../ProductService/src/ProductService.Domain/ProductService.Domain.csproj ../ProductService.Domain/
+COPY ../../ProductService/src/ProductService.Infrastructure/ProductService.Infrastructure.csproj ../ProductService.Infrastructure/
+COPY ../../Shared/Shared.csproj ../../Shared/
+RUN dotnet restore "ProductService.Api.csproj"
+# Copy everything else and build
+COPY ../../ProductService/src/ProductService.Api/. ./
+COPY ../../ProductService/src/ProductService.Application/. ../ProductService.Application/
+COPY ../../ProductService/src/ProductService.Domain/. ../ProductService.Domain/
+COPY ../../ProductService/src/ProductService.Infrastructure/. ../ProductService.Infrastructure/
+COPY ../../Shared/. ../../Shared/
+RUN dotnet build "ProductService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./ProductService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ProductService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final

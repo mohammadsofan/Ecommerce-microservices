@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,6 +53,14 @@ namespace ProductService.Infrastructure.Data
                 };
             });
             services.AddAuthorization();
+            services.AddMassTransit(config =>
+            {
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    var rabbitMqUri = new Uri(configuration.GetSection("RabbitMQ:Uri").Value ?? "amqp://localhost:5672");
+                    cfg.Host(rabbitMqUri);
+                });
+            });
 
             return services;
         }
