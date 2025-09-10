@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ProductService.Api.Middleware;
 using ProductService.Application.Wrappers;
 using ProductService.Infrastructure.Data;
 using Serilog;
@@ -48,6 +49,8 @@ try
     });
 
     var app = builder.Build();
+
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
 
     if (app.Environment.IsDevelopment())
     {
