@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Constants;
 using ProductService.Application.Dtos.Product;
 using ProductService.Application.Interfaces.IServices;
@@ -18,6 +19,7 @@ namespace ProductService.Api.Controllers
             _logger = logger;
         }
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllProductsAsync()
         {
             _logger.LogInformation("Getting all products.");
@@ -26,6 +28,7 @@ namespace ProductService.Api.Controllers
             return Ok(result);
         }
         [HttpGet("{id}", Name = "GetProductByIdAsync")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProductByIdAsync(string id)
         {
             _logger.LogInformation($"Getting product by id: {id}");
@@ -44,6 +47,7 @@ namespace ProductService.Api.Controllers
             return Ok(result);
         }
         [HttpPost]
+        [Authorize(Roles = ApplicationRoles.ADMIN)]
         public async Task<IActionResult> CreateProductAsync([FromBody] ProductRequestDto requestDto)
         {
             _logger.LogInformation("Creating a new product.");
@@ -62,6 +66,7 @@ namespace ProductService.Api.Controllers
             return CreatedAtRoute(nameof(GetProductByIdAsync), new { id = result.Data?.Id }, result);
         }
         [HttpPut("{id}")]
+        [Authorize(Roles = ApplicationRoles.ADMIN)]
         public async Task<IActionResult> UpdateProductAsync([FromRoute] string id, [FromBody] ProductRequestDto requestDto)
         {
             _logger.LogInformation($"Updating product with id: {id}");
@@ -80,6 +85,7 @@ namespace ProductService.Api.Controllers
             return NoContent();
         }
         [HttpDelete("{id}")]
+        [Authorize(Roles = ApplicationRoles.ADMIN)]
         public async Task<IActionResult> DeleteProductAsync([FromRoute] string id)
         {
             _logger.LogInformation($"Deleting product with id: {id}");

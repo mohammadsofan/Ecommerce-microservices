@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ProductService.Application.Constants;
 using ProductService.Application.Dtos.Category;
 using ProductService.Application.Interfaces.IServices;
 
@@ -17,6 +19,7 @@ namespace ProductService.Api.Controllers
             _logger = logger;
         }
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllCategoriesAsync()
         {
             _logger.LogInformation("Getting all categories.");
@@ -25,6 +28,7 @@ namespace ProductService.Api.Controllers
             return Ok(result);
         }
         [HttpGet("{id}", Name = "GetCategoryByIdAsync")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetCategoryByIdAsync([FromRoute] string id)
         {
             _logger.LogInformation($"Getting category by id: {id}");
@@ -38,6 +42,7 @@ namespace ProductService.Api.Controllers
             return Ok(result);
         }
         [HttpPost]
+        [Authorize(Roles = ApplicationRoles.ADMIN)]
         public async Task<IActionResult> CreateCategoryAsync([FromBody] CategoryRequestDto requestDto)
         {
             _logger.LogInformation("Creating a new category.");
@@ -46,6 +51,7 @@ namespace ProductService.Api.Controllers
             return CreatedAtRoute(nameof(GetCategoryByIdAsync), new { id = result.Data?.Id }, result);
         }
         [HttpDelete("{id}")]
+        [Authorize(Roles = ApplicationRoles.ADMIN)]
         public async Task<IActionResult> DeleteCategoryAsync([FromRoute] string id)
         {
             _logger.LogInformation($"Deleting category with id: {id}");
@@ -64,6 +70,7 @@ namespace ProductService.Api.Controllers
             return NoContent();
         }
         [HttpPut("{id}")]
+        [Authorize(Roles = ApplicationRoles.ADMIN)]
         public async Task<IActionResult> UpdateCategoryAsync([FromRoute] string id, [FromBody] CategoryRequestDto requestDto)
         {
             _logger.LogInformation($"Updating category with id: {id}");

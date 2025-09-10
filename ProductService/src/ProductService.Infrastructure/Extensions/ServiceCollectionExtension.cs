@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using ProductService.Application.Interfaces;
 using ProductService.Application.Interfaces.IRepository;
@@ -7,6 +9,8 @@ using ProductService.Application.Interfaces.IServices;
 using ProductService.Application.Services;
 using ProductService.Infrastructure.Adapters;
 using ProductService.Infrastructure.Repositories;
+using ProductService.Infrastructure.Settings;
+using System.Text;
 
 namespace ProductService.Infrastructure.Data
 {
@@ -19,6 +23,10 @@ namespace ProductService.Infrastructure.Data
                 options.ConnectionString = configuration.GetSection("MongoDbSettings:ConnectionString").Value ?? "";
                 options.DatabaseName = configuration.GetSection("MongoDbSettings:DatabaseName").Value ?? "";
             });
+            services.Configure<JwtSettings>(options =>
+            {
+                options.Key = configuration.GetSection("JWT:Key").Value ?? "";
+            });
             services.AddSingleton<IMongoClient>(sp => new MongoClient(configuration.GetSection("MongoDbSettings:ConnectionString").Value));
             services.AddScoped(typeof(IDbContext<>), typeof(DbContext<>));
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -28,6 +36,22 @@ namespace ProductService.Infrastructure.Data
             services.AddSingleton<IAppMapper, AppMapperAdapter>();
             services.AddScoped<IProductService, Application.Services.ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetSection("JWT:Key").Value!))
+                };
+            });
+            services.AddAuthorization();
 
             return services;
         }

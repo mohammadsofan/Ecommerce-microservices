@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using ProductService.Application.Interfaces;
+using ProductService.Infrastructure.Settings;
 
 namespace ProductService.Infrastructure.Data
 {

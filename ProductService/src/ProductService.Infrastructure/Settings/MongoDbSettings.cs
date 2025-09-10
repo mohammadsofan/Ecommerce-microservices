@@ -1,4 +1,4 @@
-namespace ProductService.Infrastructure.Data
+namespace ProductService.Infrastructure.Settings
 {
     public class MongoDbSettings
     {

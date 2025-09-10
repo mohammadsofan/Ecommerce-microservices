@@ -35,7 +35,9 @@ namespace ProductService.Application.Services
             if (ObjectId.TryParse(id, out _) == false)
             {
                 _logger.LogWarning($"Delete failed: Invalid id format for {typeof(TEntity).Name} (id: {id}).");
-                return ServiceResult.Fail(StatusCodes.BAD_REQUEST, $"Invalid {typeof(TEntity).Name} id format", new List<string> { "Invalid id format, dosen't match ObjectId format" });
+                return ServiceResult.Fail(StatusCodes.BAD_REQUEST,
+                    $"Invalid {typeof(TEntity).Name} id format",
+                    new List<Error> { new Error() { Field = "Id", Message = "Invalid id format, dosen't match ObjectId format" } });
             }
             _logger.LogInformation($"Deleting {typeof(TEntity).Name} with id {id}.");
             var result = await _repository.DeleteAsync(id);
@@ -62,7 +64,9 @@ namespace ProductService.Application.Services
             if (ObjectId.TryParse(id, out _) == false)
             {
                 _logger.LogWarning($"GetById failed: Invalid id format for {typeof(TEntity).Name} (id: {id}).");
-                return ServiceResult<TResponse>.Fail(StatusCodes.BAD_REQUEST, $"Invalid {typeof(TEntity).Name} id format", new List<string> { "Invalid id format, dosen't match ObjectId format" });
+                return ServiceResult<TResponse>.Fail(StatusCodes.BAD_REQUEST,
+                    $"Invalid {typeof(TEntity).Name} id format",
+                    new List<Error> { new Error() { Field = "Id", Message = "Invalid id format, dosen't match ObjectId format" } });
             }
             _logger.LogInformation($"Retrieving {typeof(TEntity).Name} with id {id}.");
             var entity = await _repository.GetByIdAsync(id);
@@ -80,7 +84,9 @@ namespace ProductService.Application.Services
             if (ObjectId.TryParse(id, out _) == false)
             {
                 _logger.LogWarning($"Update failed: Invalid id format for {typeof(TEntity).Name} (id: {id}).");
-                return ServiceResult.Fail(StatusCodes.BAD_REQUEST, $"Invalid {typeof(TEntity).Name} id format", new List<string> { "Invalid id format, dosen't match ObjectId format" });
+                return ServiceResult.Fail(StatusCodes.BAD_REQUEST,
+                    $"Invalid {typeof(TEntity).Name} id format",
+                    new List<Error> { new Error() { Field = "Id", Message = "Invalid id format, dosen't match ObjectId format" } });
             }
             _logger.LogInformation($"Updating {typeof(TEntity).Name} with id {id}.");
             var entity = _mapper.Map<TEntity>(request);
