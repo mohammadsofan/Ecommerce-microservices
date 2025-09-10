@@ -1,25 +1,38 @@
 version: "3.9"
 
 services:
-  mongodb:
-    image: mongo:7
-    container_name: mongodb
+  
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  emailservice.api:
+    image: emailservice.api
+    build:
+      context: ./EmailService/EmailService.Api
+      dockerfile: Dockerfile
+    container_name: emailservice.api
+    ports:
+      - "5002:80"
+    depends_on:
+      - rabbitmq
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+  
+  mongo:
+    image: mongo:7.0
+    container_name: mongo
+    restart: always
     ports:
       - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin
     volumes:
-      - mongodb_data:/data/db
-  mongo-express:
-    image: mongo-express:1.0.0
-    container_name: mongo-express
-    ports:
-      - "7070:7070"
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
-      ME_CONFIG_MONGODB_SERVER: mongodb
+      - mongo_data:/data/db
 
 volumes:
-  mongodb_data:
+  mongo_data:
