@@ -1,25 +1,42 @@
-version: "3.9"
-
+version: "3.8"
 services:
-  mongodb:
-    image: mongo:7
-    container_name: mongodb
+  productservice-api:
+    build:
+      context: ./
+      dockerfile: ProductService/src/ProductService.Api/Dockerfile
+    image: productservice-api:latest
+    container_name: productservice-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MongoDbSettings__ConnectionString=mongodb://mongo:27017
+      - MongoDbSettings__DatabaseName=ProductServiceDB
+      - JWT__Key=ce4144d0518d19b1342d14d60e9f0a433c0f3dbc72957dcf5f9e6fba6e41abc2
+      - RabbitMQ__Uri=amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+      - rabbitmq
+  mongo:
+    image: mongo:7.0
+    container_name: mongo
+    restart: always
     ports:
       - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin
     volumes:
-      - mongodb_data:/data/db
-  mongo-express:
-    image: mongo-express:1.0.0
-    container_name: mongo-express
+      - mongo_data:/data/db
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
     ports:
-      - "7070:7070"
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
-      ME_CONFIG_MONGODB_SERVER: mongodb
-
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 volumes:
-  mongodb_data:
+  mongo_data:
+  rabbitmq_data:
