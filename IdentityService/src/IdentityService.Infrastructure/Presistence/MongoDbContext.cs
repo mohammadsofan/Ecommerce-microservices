@@ -19,6 +19,8 @@ namespace IdentityService.Infrastructure.Presistence
             _database = mongoClient.GetDatabase(mongoSettings.GetValue<string>("DatabaseName"));
         }
         public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
+        public IMongoCollection<PasswordResetOtp> PasswordResetOtps => _database.GetCollection<PasswordResetOtp>("PasswordResetOtps");
+        public IMongoCollection<ResetToken> ResetTokens => _database.GetCollection<ResetToken>("ResetTokens");
 
         // Generic method to get a collection by type name
         public IMongoCollection<T> GetCollection<T>()

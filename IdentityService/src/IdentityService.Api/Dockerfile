@@ -7,6 +7,7 @@ COPY IdentityService/src/IdentityService.Application/IdentityService.Application
 COPY IdentityService/src/IdentityService.Infrastructure/IdentityService.Infrastructure.csproj IdentityService/src/IdentityService.Infrastructure/
 COPY IdentityService/src/IdentityService.Domain/IdentityService.Domain.csproj IdentityService/src/IdentityService.Domain/
 COPY *.sln .
+COPY Shared/ Shared/
 
 # Restore
 RUN dotnet restore

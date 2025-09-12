@@ -12,8 +12,8 @@ namespace EmailService.Api.Extensions
     {
         public static void AddRabbitMqService(this IServiceCollection services, IConfiguration configuration)
         {
-            var rabbitMqSettings = configuration.GetSection("RabbitMqSettings").Get<RabbitMqSettings>();
-            
+            var rabbitMqSettings = configuration.GetSection("RabbitMQ").Get<RabbitMqSettings>();
+
             services.AddMassTransit(x =>
             {
                 x.AddConsumer<ForgotPasswordConsumer>();

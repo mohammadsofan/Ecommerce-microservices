@@ -21,7 +21,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 // DI for Infrastructure and Application layers
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddApplicationServices();
+builder.Services.AddApplicationServices(builder.Configuration);
 
 
 var app = builder.Build();

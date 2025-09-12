@@ -1,7 +1,6 @@
 version: "3.9"
 
 services:
-  
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -11,20 +10,38 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - mynet
 
   emailservice.api:
-    image: emailservice.api
     build:
-      context: ./EmailService/EmailService.Api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./EmailService/EmailService.Api/Dockerfile
     container_name: emailservice.api
     ports:
-      - "5002:80"
+      - "5002:5000"
     depends_on:
       - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-  
+    networks:
+      - mynet
+
+  identityservice.api:
+    build:
+      context: .
+      dockerfile: ./IdentityService/src/IdentityService.Api/Dockerfile
+    container_name: identityservice.api
+    ports:
+      - "5001:5000"
+    depends_on:
+      - mongo
+      - rabbitmq
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - mynet
+
   mongo:
     image: mongo:7.0
     container_name: mongo
@@ -33,6 +50,12 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - mynet
 
 volumes:
   mongo_data:
+
+networks:
+  mynet:
+    driver: bridge

@@ -10,6 +10,9 @@ namespace IdentityService.Application.IServices
     {
         Task<LoginResDto> LoginAsync(LoginReqDto loginReqDto);
         Task<RegisterResDto> RegisterAsync(RegisterReqDto registerReqDto);
-        
+        Task<ForgetPasswordResDto> ForgetPasswordAsync(ForgetPasswordReqDto forgetPasswordReqDto);
+        Task<VerifyOtpResDto> VerifyOtpAsync(VerifyOtpReqDto verifyOtpReqDto);
+        Task ResetPasswordAsync(ResetPasswordReqDto resetPasswordReqDto);
+
     }
 }

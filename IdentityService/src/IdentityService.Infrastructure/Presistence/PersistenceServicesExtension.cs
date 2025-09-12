@@ -16,6 +16,8 @@ namespace IdentityService.Infrastructure.Presistence
         {
             services.AddScoped<MongoDbContext>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPasswordResetOtpRepository, PasswordResetOtpRepository>();
+            services.AddScoped<IResetTokenRepository, ResetTokenRepository>();
             return services;
         }
         public static async Task SeedDatabase(this IServiceProvider serviceProvider)
