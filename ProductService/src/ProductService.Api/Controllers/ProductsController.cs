@@ -72,6 +72,7 @@ namespace ProductService.Api.Controllers
                 await _publishEndpoint.Publish(new ProductCreatedEvent()
                 {
                     Id = result.Data.Id,
+                    Price = result.Data.Price,
                     Stock = result.Data.Stock
                 });
                 _logger.LogInformation($"Published ProductCreatedEvent for product id: {result.Data.Id}");
