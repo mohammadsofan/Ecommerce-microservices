@@ -12,17 +12,30 @@ namespace EmailService.Api.Templates
     {
         public string Build(EmailFormat format)
         {
+            var styles = $"""
+                <style>
+                {BaseTemplateStyles.BodyContainer}
+                {BaseTemplateStyles.EmailContainer}
+                {BaseTemplateStyles.Header}
+                {BaseTemplateStyles.Content}
+                {BaseTemplateStyles.Footer}
+                </style>
+            """;
+
             var email = $"""
             <html>
-                <body class={BaseTemplateStyles.BodyContainer}>
-                    <div class={BaseTemplateStyles.EmailContainer}>
-                        <div class={BaseTemplateStyles.Header}>
+                <head>
+                    {styles}
+                </head>
+                <body class="body-container">
+                    <div class="email-container">
+                        <div class="header">
                             {BuildHeader(format.Header)}
                         </div>
-                        <div class={BaseTemplateStyles.Content}>
+                        <div class="content">
                             {BuildBody(format.Body)}
                         </div>
-                        <div class={BaseTemplateStyles.Footer}>
+                        <div class="footer">
                             {BuildFooter(format.Footer)}
                         </div>
                     </div>
@@ -30,31 +43,24 @@ namespace EmailService.Api.Templates
             </html>
             """;
             return email;
-            
         }
-        public  string BuildHeader(string header)
+
+        public string BuildHeader(string header)
         {
             return $"""
-                <h1>
-                    {header}
-                </h1>
+                {header}
             """;
         }
-        public  string BuildBody(string body)
+        public string BuildBody(string body)
         {
             return $"""
-                <p>
-                    {body}
-                </p>
+                {body}
             """;
-        
         }
-        public  string BuildFooter(string footer)
+        public string BuildFooter(string footer)
         {
             return $"""
-                <footer>
-                    {footer}
-                </footer>
+                {footer}
             """;
         }
     }
