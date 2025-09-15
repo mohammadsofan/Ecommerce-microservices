@@ -1,5 +1,5 @@
-using CartService.Application.Interfaces.IRepository;
 using CartService.Application.Interfaces;
+using CartService.Application.Interfaces.IRepository;
 using CartService.Domain.Models;
 using CartService.Infrastructure.Data;
 using MongoDB.Driver;
@@ -8,7 +8,7 @@ namespace CartService.Infrastructure.Repositories
     public class CartRepository : GenericRepository<Cart>, ICartRepository
     {
         private new readonly IDbContext<Cart> _dbContext;
-        private readonly IAppLogger<Cart> _logger;
+        private new readonly IAppLogger<Cart> _logger;
 
         public CartRepository(IDbContext<Cart> dbContext, IAppLogger<Cart> logger) : base(dbContext, logger)
         {

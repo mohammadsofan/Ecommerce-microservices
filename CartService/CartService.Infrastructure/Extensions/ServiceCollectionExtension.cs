@@ -1,4 +1,6 @@
-﻿using CartService.Application.Interfaces.IRepository;
+﻿using CartService.Application.Interfaces;
+using CartService.Application.Interfaces.IRepository;
+using CartService.Infrastructure.Adapters;
 using CartService.Infrastructure.Data;
 using CartService.Infrastructure.Repositories;
 using CartService.Infrastructure.Settings;
@@ -25,10 +27,11 @@ namespace CartService.Infrastructure.Extensions
             {
                 options.Key = configuration.GetSection("JWT:Key").Value ?? "";
             });
+            services.AddScoped(typeof(IAppLogger<>), typeof(AppLoggerAdapter<>));
             services.AddSingleton<IMongoClient>(sp => new MongoClient(configuration.GetSection("MongoDbSettings:ConnectionString").Value));
             services.AddScoped(typeof(IDbContext<>), typeof(DbContext<>));
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            services.AddScoped<ICartRepository,CartRepository>();
+            services.AddScoped<ICartRepository, CartRepository>();
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
