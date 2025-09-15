@@ -1,3 +1,4 @@
+using CartService.Infrastructure.Extensions;
 using Serilog;
 
 var config = new ConfigurationBuilder()
@@ -18,6 +19,7 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+    builder.Services.AddInfrastructureServices(builder.Configuration);
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
