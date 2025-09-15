@@ -1,0 +1,44 @@
+using CartService.Application.Interfaces.IRepository;
+using CartService.Domain.Models;
+using MassTransit;
+using Microsoft.Extensions.Logging;
+using Shared.Events;
+
+namespace CartService.Infrastructure.Consumers
+{
+    public class ProductCreatedConsumer : IConsumer<ProductCreatedEvent>
+    {
+        private readonly IProductRepository _productRepository;
+        private readonly ILogger<ProductCreatedConsumer> _logger;
+
+        public ProductCreatedConsumer(IProductRepository productRepository, ILogger<ProductCreatedConsumer> logger)
+        {
+            _productRepository = productRepository;
+            _logger = logger;
+        }
+
+        public async Task Consume(ConsumeContext<ProductCreatedEvent> context)
+        {
+            try
+            {
+                var @event = context.Message;
+                _logger.LogInformation($"Consuming ProductCreatedEvent for product: {@event.Id}");
+
+                var product = new Product
+                {
+                    OriginalId = @event.Id,
+                    Price = @event.Price,
+                    IsAvailable = true
+                };
+
+                await _productRepository.AddAsync(product);
+                _logger.LogInformation($"Product added to local store: {@event.Id}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error consuming ProductCreatedEvent");
+                throw;
+            }
+        }
+    }
+}

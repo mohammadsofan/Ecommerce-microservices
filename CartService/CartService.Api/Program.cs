@@ -8,7 +8,7 @@ Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(config)
     .CreateBootstrapLogger();
 var logger = Log.ForContext<Program>();
-logger.Information("Starting up ProductService Api");
+logger.Information("Starting up CartService Api");
 try
 {
     var builder = WebApplication.CreateBuilder(args);

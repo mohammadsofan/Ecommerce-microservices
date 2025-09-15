@@ -13,16 +13,19 @@ namespace CartService.Application.Services
     public class CartService : GenericService<CartRequestDto, CartResponseDto, Cart>, ICartService
     {
         private readonly ICartRepository _cartRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IAppLogger<GenericService<CartRequestDto, CartResponseDto, Cart>> _logger;
         private readonly IAppMapper _mapper;
 
         public CartService(
             IGenericRepository<Cart> repository,
             ICartRepository cartRepository,
+            IProductRepository productRepository,
             IAppMapper mapper,
             IAppLogger<GenericService<CartRequestDto, CartResponseDto, Cart>> logger) : base(repository, mapper, logger)
         {
             _cartRepository = cartRepository;
+            _productRepository = productRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -50,6 +53,26 @@ namespace CartService.Application.Services
         {
             _logger.LogInformation($"Adding item to cart for user: {userId}");
 
+            // Check if product exists and is available
+            var product = await _productRepository.GetByOriginalIdAsync(item.ProductId);
+            if (product == null)
+            {
+                _logger.LogWarning($"Product not found: {item.ProductId}");
+                return ServiceResult<CartResponseDto>.Fail(
+                    StatusCodes.NOT_FOUND,
+                    "Product not found",
+                    new List<Error> { new Error { Field = "ProductId", Message = "The specified product does not exist" } });
+            }
+
+            if (!product.IsAvailable)
+            {
+                _logger.LogWarning($"Product is not available: {item.ProductId}");
+                return ServiceResult<CartResponseDto>.Fail(
+                    StatusCodes.BAD_REQUEST,
+                    "Product is not available",
+                    new List<Error> { new Error { Field = "ProductId", Message = "The specified product is not available for purchase" } });
+            }
+
             var cart = await _cartRepository.GetCartByUserIdAsync(userId);
             if (cart == null)
             {
@@ -59,11 +82,16 @@ namespace CartService.Application.Services
             }
 
             var cartItem = _mapper.Map<CartItem>(item);
+            // Set the current price from the product
+            cartItem.Price = product.Price;
+
             var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == item.ProductId);
 
             if (existingItem != null)
             {
                 _logger.LogInformation($"Updating quantity for existing item in cart");
+                // Update the price in case it changed
+                existingItem.Price = product.Price;
                 await _cartRepository.UpdateItemQuantityAsync(cart.Id, item.ProductId, existingItem.Quantity + item.Quantity);
             }
             else
