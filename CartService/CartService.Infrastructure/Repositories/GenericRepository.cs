@@ -27,22 +27,22 @@ namespace CartService.Infrastructure.Repositories
             return await _dbContext.GetAllDocumentsAsync();
         }
 
-        public async Task AddAsync(T entity)
+        public async Task<T> AddAsync(T entity)
         {
             _logger.LogInformation($"Adding new {typeof(T).Name} document");
-            await _dbContext.InsertDocumentAsync(entity);
+            return await _dbContext.InsertDocumentAsync(entity);
         }
 
-        public async Task UpdateAsync(string id, T entity)
+        public async Task<bool> UpdateAsync(string id, T entity)
         {
             _logger.LogInformation($"Updating {typeof(T).Name} with Id: {id}");
-            await _dbContext.UpdateDocumentAsync(id, entity);
+            return await _dbContext.UpdateDocumentAsync(id, entity);
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task<bool> DeleteAsync(string id)
         {
             _logger.LogInformation($"Deleting {typeof(T).Name} with Id: {id}");
-            await _dbContext.DeleteDocumentAsync(id);
+            return await _dbContext.DeleteDocumentAsync(id);
         }
     }
 }

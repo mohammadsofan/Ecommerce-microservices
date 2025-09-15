@@ -7,8 +7,8 @@ namespace CartService.Application.Interfaces.IRepository
     {
         Task<T?> GetByIdAsync(string id);
         Task<IEnumerable<T>> GetAllAsync();
-        Task AddAsync(T entity);
-        Task UpdateAsync(string id, T entity);
-        Task DeleteAsync(string id);
+        Task<T> AddAsync(T entity);
+        Task<bool> UpdateAsync(string id, T entity);
+        Task<bool> DeleteAsync(string id);
     }
 }
