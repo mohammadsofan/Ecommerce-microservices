@@ -1,3 +1,4 @@
+using CartService.Api.Middlewares;
 using CartService.Infrastructure.Extensions;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -54,7 +55,7 @@ try
 
     builder.Services.AddInfrastructureServices(builder.Configuration);
     var app = builder.Build();
-
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     {

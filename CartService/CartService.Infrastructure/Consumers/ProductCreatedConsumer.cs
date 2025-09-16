@@ -1,7 +1,7 @@
+using CartService.Application.Interfaces;
 using CartService.Application.Interfaces.IRepository;
 using CartService.Domain.Models;
 using MassTransit;
-using Microsoft.Extensions.Logging;
 using Shared.Events;
 
 namespace CartService.Infrastructure.Consumers
@@ -9,9 +9,9 @@ namespace CartService.Infrastructure.Consumers
     public class ProductCreatedConsumer : IConsumer<ProductCreatedEvent>
     {
         private readonly IProductRepository _productRepository;
-        private readonly ILogger<ProductCreatedConsumer> _logger;
+        private readonly IAppLogger<ProductCreatedConsumer> _logger;
 
-        public ProductCreatedConsumer(IProductRepository productRepository, ILogger<ProductCreatedConsumer> logger)
+        public ProductCreatedConsumer(IProductRepository productRepository, IAppLogger<ProductCreatedConsumer> logger)
         {
             _productRepository = productRepository;
             _logger = logger;
@@ -36,7 +36,7 @@ namespace CartService.Infrastructure.Consumers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error consuming ProductCreatedEvent");
+                _logger.LogError("Error consuming ProductCreatedEvent", ex);
                 throw;
             }
         }

@@ -1,6 +1,6 @@
+using CartService.Application.Interfaces;
 using CartService.Application.Interfaces.IRepository;
 using MassTransit;
-using Microsoft.Extensions.Logging;
 using Shared.Events;
 
 namespace CartService.Infrastructure.Consumers
@@ -8,9 +8,9 @@ namespace CartService.Infrastructure.Consumers
     public class ProductDeletedConsumer : IConsumer<ProductDeletedEvent>
     {
         private readonly IProductRepository _productRepository;
-        private readonly ILogger<ProductDeletedConsumer> _logger;
+        private readonly IAppLogger<ProductDeletedConsumer> _logger;
 
-        public ProductDeletedConsumer(IProductRepository productRepository, ILogger<ProductDeletedConsumer> logger)
+        public ProductDeletedConsumer(IProductRepository productRepository, IAppLogger<ProductDeletedConsumer> logger)
         {
             _productRepository = productRepository;
             _logger = logger;
@@ -35,7 +35,7 @@ namespace CartService.Infrastructure.Consumers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error consuming ProductDeletedEvent");
+                _logger.LogError("Error consuming ProductDeletedEvent", ex);
                 throw;
             }
         }
