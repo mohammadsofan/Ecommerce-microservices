@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   productservice-api:
     build:
@@ -6,12 +5,16 @@ services:
       dockerfile: ProductService/src/ProductService.Api/Dockerfile
     image: productservice-api:latest
     container_name: productservice-api
+    networks:
+      - mynet
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - MongoDbSettings__ConnectionString=mongodb://mongo:27017
       - MongoDbSettings__DatabaseName=ProductServiceDB
       - JWT__Key=ce4144d0518d19b1342d14d60e9f0a433c0f3dbc72957dcf5f9e6fba6e41abc2
       - RabbitMQ__Uri=amqp://guest:guest@rabbitmq:5672/
+      - Serilog__WriteTo__1__Name=Seq
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
     ports:
       - "8080:8080"
     depends_on:
@@ -29,11 +32,15 @@ services:
       - MongoDbSettings__DatabaseName=CartServiceDB
       - JWT__Key=ce4144d0518d19b1342d14d60e9f0a433c0f3dbc72957dcf5f9e6fba6e41abc2
       - RabbitMQ__Uri=amqp://guest:guest@rabbitmq:5672/
+      - Serilog__WriteTo__1__Name=Seq
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
     ports:
       - "8081:80"
     depends_on:
       - mongo
       - rabbitmq
+    networks:
+      - mynet
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -47,33 +54,35 @@ services:
       - mynet
 
   emailservice.api:
-      build:
-        context: .
-        dockerfile: ./EmailService/EmailService.Api/Dockerfile
-      container_name: emailservice.api
-      ports:
-        - "5002:5000"
-      depends_on:
-        - rabbitmq
-      environment:
-        - ASPNETCORE_ENVIRONMENT=Development
-      networks:
-        - mynet
-      
+    build:
+      context: .
+      dockerfile: ./EmailService/EmailService.Api/Dockerfile
+    container_name: emailservice.api
+    ports:
+      - "5002:5000"
+    depends_on:
+      - rabbitmq
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - mynet
+
   identityservice.api:
-      build:
-        context: .
-        dockerfile: ./IdentityService/src/IdentityService.Api/Dockerfile
-      container_name: identityservice.api
-      ports:
-        - "5001:5000"
-      depends_on:
-        - mongo
-        - rabbitmq
-      environment:
-        - ASPNETCORE_ENVIRONMENT=Development
-      networks:
-        - mynet
+    build:
+      context: .
+      dockerfile: ./IdentityService/src/IdentityService.Api/Dockerfile
+    container_name: identityservice.api
+    ports:
+      - "5001:5000"
+    depends_on:
+      - mongo
+      - rabbitmq
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Serilog__WriteTo__1__Name=Seq
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
+    networks:
+      - mynet
 
   mongo:
     image: mongo:7.0
@@ -83,6 +92,16 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - mynet
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    ports:
+      - "5341:80"
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
     networks:
       - mynet
 

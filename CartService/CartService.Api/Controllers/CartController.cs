@@ -68,7 +68,7 @@ namespace CartService.Api.Controllers
             {
                 return NotFound(result);
             }
-            return Ok(result);
+            return NoContent();
         }
         [HttpPut("{productId}/quantity/{quantity}")]
         public async Task<IActionResult> UpdateItemQuantity(string productId, int quantity)
@@ -87,7 +87,7 @@ namespace CartService.Api.Controllers
             {
                 return NotFound(result);
             }
-            return Ok(result);
+            return NoContent();
         }
 
     }

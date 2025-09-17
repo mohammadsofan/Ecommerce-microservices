@@ -54,6 +54,8 @@ try
     });
 
     builder.Services.AddInfrastructureServices(builder.Configuration);
+    builder.Services.AddTransient<ExceptionHandlingMiddleware>();
+
     var app = builder.Build();
     app.UseMiddleware<ExceptionHandlingMiddleware>();
     // Configure the HTTP request pipeline.
