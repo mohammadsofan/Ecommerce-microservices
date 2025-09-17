@@ -126,6 +126,10 @@ namespace IdentityService.Application.Services
                 _logger.LogInformation("Processing forget password request for email: {Email}", forgetPasswordReqDto.Email);
                 var user = await _userRepository.GetSingleAsync(u => u.Email == forgetPasswordReqDto.Email)
                     ?? throw new NotFoundException(forgetPasswordReqDto.Email, "User");
+                 if (!user.IsActive)
+                {
+                    throw new InactiveUserException(user.Id);
+                }
 
                 var otp = GenerateOTP();
                 var passwordResetOtp = new PasswordResetOtp
@@ -148,6 +152,11 @@ namespace IdentityService.Application.Services
             catch (NotFoundException ex)
             {
                 _logger.LogWarning("Forget password request failed for email: {Email}. Reason: {Reason}", forgetPasswordReqDto.Email, ex.Message);
+                throw;
+            }
+            catch (InactiveUserException ex)
+            {
+                _logger.LogWarning("Inactive user forget password attempt for user: {Email}. Reason: {Reason}", forgetPasswordReqDto.Email, ex.Message);
                 throw;
             }
             catch (Exception ex)
