@@ -1,4 +1,4 @@
-﻿namespace ProductService.Application.Constants
+﻿namespace CartService.Application.Enums
 {
     public static class ApplicationRoles
     {
