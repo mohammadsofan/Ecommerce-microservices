@@ -30,7 +30,6 @@ artifacts/
 Thumbs.db
 
 # ASP.NET Core / Web API
-appsettings.Development.json
 appsettings.Local.json
 *.db
 *.sqlite
