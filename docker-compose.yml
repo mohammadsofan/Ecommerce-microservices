@@ -33,47 +33,33 @@ services:
       - mynet
 
   emailservice.api:
-    build:
-      context: .
-      dockerfile: ./EmailService/EmailService.Api/Dockerfile
-    container_name: emailservice.api
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
+      build:
+        context: .
+        dockerfile: ./EmailService/EmailService.Api/Dockerfile
+      container_name: emailservice.api
+      ports:
+        - "5002:5000"
+      depends_on:
+        - rabbitmq
+      environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+      networks:
+        - mynet
       
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    restart: always
-      - "5002:5000"
-    depends_on:
-      - rabbitmq
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    networks:
-      - mynet
-
   identityservice.api:
-    build:
-      context: .
-      dockerfile: ./IdentityService/src/IdentityService.Api/Dockerfile
-    container_name: identityservice.api
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-      - "5001:5000"
-    depends_on:
-      - mongo
-      - rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-      - ASPNETCORE_ENVIRONMENT=Development
-    networks:
-      - mynet
+      build:
+        context: .
+        dockerfile: ./IdentityService/src/IdentityService.Api/Dockerfile
+      container_name: identityservice.api
+      ports:
+        - "5001:5000"
+      depends_on:
+        - mongo
+        - rabbitmq
+      environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+      networks:
+        - mynet
 
   mongo:
     image: mongo:7.0
@@ -88,7 +74,6 @@ services:
 
 volumes:
   mongo_data:
-  rabbitmq_data:
 
 networks:
   mynet:
