@@ -95,6 +95,17 @@ namespace ProductService.Api.Controllers
                 _logger.LogWarning($"Product update failed: bad request (id: {id}).");
                 return BadRequest(result);
             }
+            if (result.Success)
+            {
+                _logger.LogInformation($"Publishing ProductUpdatedEvent for product id: {id}");
+                await _publishEndpoint.Publish(new ProductCreatedEvent()
+                {
+                    Id = id,
+                    Price = requestDto.Price,
+                    Stock = requestDto.Stock
+                });
+                _logger.LogInformation($"Published ProductUpdatedEvent for product id: {id}");
+            }
             _logger.LogInformation($"Product with id {id} updated successfully.");
             return NoContent();
         }
