@@ -32,6 +32,12 @@ namespace InvoiceService.Infrastructure.Extensions
                     {
                         e.ConfigureConsumer<OrderPaidInvoiceEventConsumer>(context);
                     });
+                    cfg.ReceiveEndpoint("invoice-service.invoice-status-update", e =>
+                    {
+                        e.ConfigureConsumer<InvoiceStatusUpdateConsumer>(context);
+                    });
+
+                    
                 });
             });
         }
