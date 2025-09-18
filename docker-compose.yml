@@ -60,6 +60,21 @@ services:
         - ASPNETCORE_ENVIRONMENT=Development
       networks:
         - mynet
+  
+  invoiceservice.api:
+      build:
+        context: .
+        dockerfile: ./InvoiceService/src/InvoiceService.Api/Dockerfile
+      container_name: invoiceservice.api
+      ports:
+        - "5003:5000"
+      depends_on:
+        - mongo
+        - rabbitmq
+      environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+      networks:
+        - mynet
 
   mongo:
     image: mongo:7.0
