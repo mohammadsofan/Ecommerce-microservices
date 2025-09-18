@@ -7,7 +7,7 @@ namespace Shared.Events
 {
     public record class ForgotPasswordEvent
     {
-        public string Email { get; init; }
-        public string OTP { get; init; }
+        public string Email { get; init; } = string.Empty;
+        public string OTP { get; init; } = string.Empty;
     }
 }
