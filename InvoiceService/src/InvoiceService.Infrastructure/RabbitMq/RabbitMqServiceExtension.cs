@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using InvoiceService.Application.Configurations;
+using InvoiceService.Infrastructure.Configurations;
 using InvoiceService.Application.Consumers;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
