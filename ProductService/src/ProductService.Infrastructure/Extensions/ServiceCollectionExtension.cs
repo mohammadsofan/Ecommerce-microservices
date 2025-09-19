@@ -33,10 +33,12 @@ namespace ProductService.Infrastructure.Data
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IDiscountRepository, DiscountRepository>();
             services.AddScoped(typeof(IAppLogger<>), typeof(AppLoggerAdapter<>));
             services.AddSingleton<IAppMapper, AppMapperAdapter>();
             services.AddScoped<IProductService, Application.Services.ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IDiscountService, DiscountService>();
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

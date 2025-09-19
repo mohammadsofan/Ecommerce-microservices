@@ -72,6 +72,7 @@ namespace ProductService.Api.Controllers
                 await _publishEndpoint.Publish(new ProductCreatedEvent()
                 {
                     Id = result.Data.Id,
+                    CategoryId = result.Data.CategoryId,
                     Price = result.Data.Price,
                     Stock = result.Data.Stock
                 });
@@ -98,11 +99,13 @@ namespace ProductService.Api.Controllers
             if (result.Success)
             {
                 _logger.LogInformation($"Publishing ProductUpdatedEvent for product id: {id}");
+                var productResult = await _productService.GetByIdAsync(id);
                 await _publishEndpoint.Publish(new ProductCreatedEvent()
                 {
-                    Id = id,
-                    Price = requestDto.Price,
-                    Stock = requestDto.Stock
+                    Id = productResult.Data!.Id,
+                    CategoryId = productResult.Data!.CategoryId,
+                    Price = productResult.Data!.Price,
+                    Stock = productResult.Data!.Stock
                 });
                 _logger.LogInformation($"Published ProductUpdatedEvent for product id: {id}");
             }
