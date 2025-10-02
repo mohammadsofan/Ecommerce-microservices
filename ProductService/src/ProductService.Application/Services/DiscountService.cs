@@ -11,6 +11,7 @@ namespace ProductService.Application.Services
 {
     public class DiscountService : GenericService<DiscountRequestDto, DiscountResponseDto, Discount>, IDiscountService
     {
+        private readonly IAppMapper _mapper;
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
         private readonly IDiscountRepository _discountRepository;
@@ -22,6 +23,7 @@ namespace ProductService.Application.Services
             IProductService productService,
             IDiscountRepository discountRepository) : base(repository, mapper, logger)
         {
+            _mapper = mapper;
             _categoryService = categoryService;
             _productService = productService;
             _discountRepository = discountRepository;
@@ -35,7 +37,12 @@ namespace ProductService.Application.Services
                     "Either CategoryId or ProductId must be provided.",
                     new List<Error> { new Error { Field = "CategoryId/ProductId", Message = "Either CategoryId or ProductId must be provided." } });
             }
-
+            if (request.ProductId != null && request.CategoryId != null)
+            {
+                return ServiceResult.Fail(StatusCodes.BAD_REQUEST,
+                    "Only one of CategoryId or ProductId should be provided.",
+                    new List<Error> { new Error { Field = "CategoryId/ProductId", Message = "Only one of CategoryId or ProductId should be provided." } });
+            }
             // Check if product exists and has no active discount
             if (request.ProductId != null)
             {
@@ -121,6 +128,17 @@ namespace ProductService.Application.Services
                     validationResult.Errors);
             }
             return await base.UpdateAsync(id, request);
+        }
+        public async Task<ServiceResult<DiscountResponseDto>> GetByProductOrCategoryAsync(string id)
+        {
+
+            var discount = await _discountRepository.GetActiveDiscountByProductOrCategoryAsync(id);
+            if (discount == null)
+            {
+                return ServiceResult<DiscountResponseDto>.Fail(StatusCodes.NOT_FOUND, "No active discount found for the given id.");
+            }
+
+            return ServiceResult<DiscountResponseDto>.Ok(StatusCodes.SUCCESS, _mapper.Map<DiscountResponseDto>(discount), "Active discount retrieved successfully.");
         }
     }
 }

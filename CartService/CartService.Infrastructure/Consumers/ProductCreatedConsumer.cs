@@ -27,6 +27,7 @@ namespace CartService.Infrastructure.Consumers
                 var product = new Product
                 {
                     OriginalId = @event.Id,
+                    CategoryId = @event.CategoryId,
                     Price = @event.Price,
                     IsAvailable = true
                 };

@@ -5,6 +5,7 @@ using CartService.Application.Interfaces;
 using CartService.Application.Interfaces.IRepository;
 using CartService.Application.Interfaces.IService;
 using CartService.Application.Wrappers;
+using CartService.Domain.Enums;
 using CartService.Domain.Models;
 using ProductService.Application.Services;
 
@@ -15,6 +16,7 @@ namespace CartService.Application.Services
         private readonly ICartRepository _cartRepository;
         private readonly IProductRepository _productRepository;
         private readonly IAppLogger<GenericService<CartRequestDto, CartResponseDto, Cart>> _logger;
+        private readonly IDiscountRepository _discountRepository;
         private readonly IAppMapper _mapper;
 
         public CartService(
@@ -22,18 +24,18 @@ namespace CartService.Application.Services
             ICartRepository cartRepository,
             IProductRepository productRepository,
             IAppMapper mapper,
-            IAppLogger<GenericService<CartRequestDto, CartResponseDto, Cart>> logger) : base(repository, mapper, logger)
+            IAppLogger<GenericService<CartRequestDto, CartResponseDto, Cart>> logger,
+            IDiscountRepository discountRepository) : base(repository, mapper, logger)
         {
             _cartRepository = cartRepository;
             _productRepository = productRepository;
             _mapper = mapper;
             _logger = logger;
+            _discountRepository = discountRepository;
         }
-
         public async Task<ServiceResult<CartResponseDto>> GetCartByUserIdAsync(string userId)
         {
             _logger.LogInformation($"Getting cart for user: {userId}");
-
             var cart = await _cartRepository.GetCartByUserIdAsync(userId);
             if (cart == null)
             {
@@ -41,8 +43,41 @@ namespace CartService.Application.Services
                 cart = new Cart { UserId = userId, Items = new List<CartItem>() };
                 await _cartRepository.AddAsync(cart);
             }
+            foreach (var item in cart.Items)
+            {
+                var discount = await _discountRepository.GetByProductId(item.ProductId);
+                if (discount is null)
+                {
+                    _logger.LogInformation($"No discount found for product: {item.ProductId}");
+                    var product = await _productRepository.GetByOriginalIdAsync(item.ProductId);
+                    if (product is not null)
+                    {
+                        discount = await _discountRepository.GetByCategoryId(product.CategoryId);
+                        if (discount is null)
+                        {
+                            _logger.LogInformation($"No discount found for category: {product.CategoryId}");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"product not found with id: {item.ProductId}");
+                    }
+                }
 
+                if (discount is not null)
+                {
+                    _logger.LogInformation($"Applying discount to product: {item.ProductId}, original price: {item.Price}, discount amount: {discount.Amount}, discountType: {discount.DiscountType}");
+                    if (discount.DiscountType == DiscountType.Percentage)
+                    {
+                        item.FinalPrice -= (item.Price * discount.Amount / 100);
+                    }
+                    else
+                        item.FinalPrice -= discount.Amount;
+                    if (item.FinalPrice < 0) item.FinalPrice = 0; // Ensure price doesn't go negative
+                }
+            }
             var response = _mapper.Map<CartResponseDto>(cart);
+
             return ServiceResult<CartResponseDto>.Ok(
                 StatusCodes.SUCCESS,
                 response,
@@ -84,7 +119,7 @@ namespace CartService.Application.Services
             var cartItem = _mapper.Map<CartItem>(item);
             // Set the current price from the product
             cartItem.Price = product.Price;
-
+            cartItem.FinalPrice = product.Price;
             var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == item.ProductId);
 
             if (existingItem != null)
@@ -92,6 +127,7 @@ namespace CartService.Application.Services
                 _logger.LogInformation($"Updating quantity for existing item in cart");
                 // Update the price in case it changed
                 existingItem.Price = product.Price;
+                existingItem.FinalPrice = cartItem.FinalPrice;
                 await _cartRepository.UpdateItemQuantityAsync(cart.Id, item.ProductId, existingItem.Quantity + item.Quantity);
             }
             else

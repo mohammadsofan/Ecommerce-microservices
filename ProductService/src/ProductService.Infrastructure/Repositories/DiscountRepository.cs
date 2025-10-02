@@ -53,5 +53,27 @@ namespace ProductService.Infrastructure.Repositories
 
             return await collection.Find(filter).AnyAsync();
         }
+        //i want to check the productid first, and return the discount if found, otherwise check the categoryid and return the discount if found
+        public async Task<Discount?> GetActiveDiscountByProductOrCategoryAsync(string id)
+        {
+            var collection = _dbContext.GetCollection();
+            var builder = Builders<Discount>.Filter;
+
+            // First, check for an active discount for the product using the provided id
+            var productFilter = builder.Eq(x => x.ProductId, id) &
+                (builder.Eq(x => x.ExpirationDate, null) | builder.Gt(x => x.ExpirationDate, DateTime.UtcNow));
+
+            var discount = await collection.Find(productFilter).FirstOrDefaultAsync();
+            if (discount != null)
+            {
+                return discount;
+            }
+
+            // If not found, check for an active discount for the category using the same id
+            var categoryFilter = builder.Eq(x => x.CategoryId, id) &
+                (builder.Eq(x => x.ExpirationDate, null) | builder.Gt(x => x.ExpirationDate, DateTime.UtcNow));
+
+            return await collection.Find(categoryFilter).FirstOrDefaultAsync();
+        }
     }
 }

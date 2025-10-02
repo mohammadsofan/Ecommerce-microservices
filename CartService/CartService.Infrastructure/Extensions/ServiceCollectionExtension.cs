@@ -34,7 +34,7 @@ namespace CartService.Infrastructure.Extensions
             services.AddScoped(typeof(IDbContext<>), typeof(DbContext<>));
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<ICartRepository, CartRepository>();
-            services.AddScoped<ICartService, CartService.Application.Services.CartService>();
+            services.AddScoped<ICartService, Application.Services.CartService>();
             services.AddSingleton<IAppMapper, AppMapperAdapter>();
             services.AddAuthentication(options =>
             {
@@ -53,12 +53,14 @@ namespace CartService.Infrastructure.Extensions
             });
             services.AddAuthorization();
             services.AddScoped<IProductRepository, ProductRepository>();
-
+            services.AddScoped<IDiscountRepository, DiscountRepository>();
             services.AddMassTransit(config =>
             {
                 config.AddConsumer<ProductCreatedConsumer>();
                 config.AddConsumer<ProductDeletedConsumer>();
-
+                config.AddConsumer<DiscountCreatedConsumer>();
+                config.AddConsumer<DiscountDeletedConsumer>();
+                config.AddConsumer<DiscountUpdatedConsumer>();
                 config.UsingRabbitMq((ctx, cfg) =>
                 {
                     var rabbitMqUri = new Uri(configuration.GetSection("RabbitMQ:Uri").Value ?? "amqp://localhost:5672");
@@ -72,6 +74,18 @@ namespace CartService.Infrastructure.Extensions
                     cfg.ReceiveEndpoint("cart-service-product-deleted", e =>
                     {
                         e.ConfigureConsumer<ProductDeletedConsumer>(ctx);
+                    });
+                    cfg.ReceiveEndpoint("cart-service-discount-created", e =>
+                    {
+                        e.ConfigureConsumer<DiscountCreatedConsumer>(ctx);
+                    });
+                    cfg.ReceiveEndpoint("cart-service-discount-updated", e =>
+                    {
+                        e.ConfigureConsumer<DiscountUpdatedConsumer>(ctx);
+                    });
+                    cfg.ReceiveEndpoint("cart-service-discount-deleted", e =>
+                    {
+                        e.ConfigureConsumer<DiscountDeletedConsumer>(ctx);
                     });
                 });
             });
