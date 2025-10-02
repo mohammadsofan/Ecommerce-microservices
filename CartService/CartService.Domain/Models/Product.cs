@@ -12,9 +12,8 @@ namespace CartService.Domain.Models
         [BsonRequired]
         [BsonElement("OriginalId")]
         public string OriginalId { get; set; } = string.Empty;
-
         [BsonRequired]
-        public string Name { get; set; } = string.Empty;
+        public string CategoryId { get; set; } = string.Empty;
 
         [BsonRequired]
         public decimal Price { get; set; }

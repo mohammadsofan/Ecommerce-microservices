@@ -6,5 +6,6 @@ namespace ProductService.Application.Interfaces.IRepository
     {
         Task<bool> HasActiveDiscountForProduct(string productId, string? excludeDiscountId = null);
         Task<bool> HasActiveDiscountForCategory(string categoryId, string? excludeDiscountId = null);
+        Task<Discount?> GetActiveDiscountByProductOrCategoryAsync(string id);
     }
 }

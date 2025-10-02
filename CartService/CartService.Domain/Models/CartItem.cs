@@ -12,5 +12,6 @@ namespace CartService.Domain.Models
 
         [BsonRequired]
         public decimal Price { get; set; }
+        public decimal FinalPrice { get; set; }
     }
 }
